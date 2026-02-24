@@ -66,6 +66,11 @@ function callGeminiWithFallback(requestBody) {
 
         if (responseCode === 200) {
           Logger.log('成功: ' + model);
+          if (!responseData.candidates || !responseData.candidates[0] || !responseData.candidates[0].content) {
+            Logger.log('candidates が空（安全フィルター等）: ' + model);
+            lastError = new Error('Geminiがコンテンツを生成できませんでした（安全フィルター）');
+            continue;
+          }
           var generatedText = responseData.candidates[0].content.parts[0].text;
           var jsonData = parseGeminiResponse(generatedText);
 
