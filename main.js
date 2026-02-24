@@ -84,15 +84,13 @@ function handleGenerate(data) {
 
 /**
  * 初回セットアップ: GASエディタでこの関数を実行してAPIキーを設定
- * 引数なしで実行 → プロンプトでAPIキーを入力
+ * 実行前に下の YOUR_API_KEY_HERE を実際のキーに書き換えてから実行。
+ * 実行後は必ず元に戻す（キーをコードに残さない）。
  */
 function setupApiKey() {
-  var key = Browser.inputBox('Gemini API Keyを入力してください:');
-  if (key && key !== 'cancel') {
-    PropertiesService.getScriptProperties().setProperty('GEMINI_API_KEY', key);
-    Logger.log('GEMINI_API_KEY を設定しました');
-    Browser.msgBox('APIキー設定完了');
-  }
+  var key = 'YOUR_API_KEY_HERE';
+  PropertiesService.getScriptProperties().setProperty('GEMINI_API_KEY', key);
+  Logger.log('GEMINI_API_KEY を設定しました（文字数: ' + key.length + '）');
 }
 
 /**
