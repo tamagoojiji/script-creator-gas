@@ -22,6 +22,15 @@ function doPost(e) {
       case 'generate-empathy':
         result = handleGenerateEmpathy(data);
         break;
+      case 'sync-save':
+        result = handleSyncSave(data);
+        break;
+      case 'sync-load':
+        result = handleSyncLoad();
+        break;
+      case 'sync-delete':
+        result = handleSyncDelete(data);
+        break;
       case 'test':
         result = { ok: true, message: '接続成功' };
         break;
@@ -143,6 +152,87 @@ function handleGenerateEmpathy(data) {
     script: scriptData,
     yaml: yaml
   };
+}
+
+/**
+ * クラウド同期: スクリプトを保存
+ * @param {Object} data - { scripts: Script[] }
+ * @returns {Object} { ok, count }
+ */
+function handleSyncSave(data) {
+  var scripts = data.scripts;
+  if (!scripts || !Array.isArray(scripts)) {
+    throw new Error('scriptsが指定されていません');
+  }
+
+  var props = PropertiesService.getScriptProperties();
+
+  // 既存のreel-script_*キーを全削除（差分ではなく全置換）
+  var allKeys = props.getKeys();
+  for (var i = 0; i < allKeys.length; i++) {
+    if (allKeys[i].indexOf('reel-script_') === 0) {
+      props.deleteProperty(allKeys[i]);
+    }
+  }
+
+  // 新しいスクリプトを保存
+  for (var j = 0; j < scripts.length; j++) {
+    var s = scripts[j];
+    props.setProperty('reel-script_' + s.id, JSON.stringify(s));
+  }
+
+  Logger.log('sync-save: ' + scripts.length + '件保存');
+
+  return {
+    ok: true,
+    count: scripts.length
+  };
+}
+
+/**
+ * クラウド同期: 全スクリプトをロード
+ * @returns {Object} { ok, scripts }
+ */
+function handleSyncLoad() {
+  var props = PropertiesService.getScriptProperties();
+  var allKeys = props.getKeys();
+  var scripts = [];
+
+  for (var i = 0; i < allKeys.length; i++) {
+    if (allKeys[i].indexOf('reel-script_') === 0) {
+      try {
+        scripts.push(JSON.parse(props.getProperty(allKeys[i])));
+      } catch (e) {
+        Logger.log('sync-load: パース失敗 key=' + allKeys[i]);
+      }
+    }
+  }
+
+  Logger.log('sync-load: ' + scripts.length + '件取得');
+
+  return {
+    ok: true,
+    scripts: scripts
+  };
+}
+
+/**
+ * クラウド同期: スクリプトを削除
+ * @param {Object} data - { id: string }
+ * @returns {Object} { ok }
+ */
+function handleSyncDelete(data) {
+  var id = data.id;
+  if (!id) {
+    throw new Error('idが指定されていません');
+  }
+
+  var props = PropertiesService.getScriptProperties();
+  props.deleteProperty('reel-script_' + id);
+
+  Logger.log('sync-delete: id=' + id);
+
+  return { ok: true };
 }
 
 /**
