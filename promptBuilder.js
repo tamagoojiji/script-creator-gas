@@ -63,7 +63,137 @@ function buildTemplateStructure(template) {
   lines.push('');
   lines.push('※ シーン数は内容に応じて増減OK。ただし最低' + template.sceneCount.split('-')[0] + 'シーン。');
 
+  if (template.note) {
+    lines.push('');
+    lines.push('※ ' + template.note);
+  }
+
   return lines.join('\n');
+}
+
+/**
+ * EMPATHY型用：感情引き出し質問を生成するプロンプト
+ * @param {string} transcript - ユーザーの音声メモ
+ * @param {string[]} targets - 投稿先
+ * @returns {string} プロンプト
+ */
+function buildQuestionsPrompt(transcript, targets) {
+  var targetStr = targets.join('・');
+
+  return [
+    '# 指示',
+    'あなたはInstagramリール台本の作成を補助するAIです。',
+    'ユーザーがリール台本のテーマとメイン情報を入力しました。',
+    'これから台本を生成しますが、その前に「感情パート」を充実させるための質問を生成してください。',
+    '',
+    '# 背景',
+    '- 発信者: USJ攻略情報を発信する父親（tamago）',
+    '- ターゲット: 子連れファミリーの母親（共働き、世帯年収1000万+、子ども5-12歳）',
+    '- 投稿先: ' + targetStr,
+    '- ゴール: フォロー獲得（攻略情報を出し惜しみせず提供し、信頼を得る）',
+    '',
+    '# ユーザーの入力（テーマ・メイン情報）',
+    '```',
+    transcript,
+    '```',
+    '',
+    '# 質問生成ルール',
+    '- 2〜3個の質問を生成',
+    '- 質問の目的: ユーザー（発信者）の中にある感情・体験・想いを引き出す',
+    '- 質問の方向性:',
+    '  - 「この情報を知らずにUSJに行った家族は、どうなると思う？」系（ターゲットの痛み）',
+    '  - 「この情報を知って行った家族の1日は、どう変わる？」系（ベネフィット）',
+    '  - 「この情報を発信しようと思ったきっかけは？」系（発信者の想い）',
+    '- テーマの内容に合わせて質問をカスタマイズすること',
+    '- 質問は短く、答えやすい形にする（音声入力で回答するため）',
+    '',
+    '# 出力フォーマット（厳守）',
+    'JSON形式で出力。以下の構造に従うこと:',
+    '',
+    '```json',
+    '{',
+    '  "questions": [',
+    '    {',
+    '      "id": 1,',
+    '      "question": "質問文",',
+    '      "purpose": "この質問で引き出したいこと（台本のどこに使うか）"',
+    '    }',
+    '  ]',
+    '}',
+    '```',
+    '',
+    '必ず ```json ブロックでJSON形式のみ出力してください。説明文は不要です。'
+  ].join('\n');
+}
+
+/**
+ * EMPATHY型用：質問回答を含めた台本生成プロンプト
+ * @param {string} transcript - 音声メモ
+ * @param {string[]} targets - 投稿先
+ * @param {Object[]} answers - 質問と回答の配列 [{question, answer}]
+ * @returns {string} プロンプト
+ */
+function buildEmpathyPrompt(transcript, targets, answers) {
+  var template = CONFIG.TEMPLATES.empathy;
+  var targetStr = targets.join('・');
+
+  var answersBlock = answers.map(function(a, i) {
+    return 'Q' + (i + 1) + ': ' + a.question + '\nA' + (i + 1) + ': ' + a.answer;
+  }).join('\n\n');
+
+  var prompt = [
+    '# 指示',
+    'あなたはInstagramリール台本の作成AIです。',
+    '以下のルールに厳密に従い、リール台本を生成してください。',
+    '',
+    '# 投稿先',
+    targetStr,
+    '',
+    '# ターゲット',
+    '子連れファミリーの母親（共働き、世帯年収1000万+、子ども5-12歳）。',
+    '「時間をお金で買う」価値観を持ち、事前に情報収集するが正解がわからず迷っている層。',
+    'EP（エクスプレス・パス）の購入を迷っているが、超VIPではない中間所得層。',
+    '',
+    '# テンプレート: ' + template.name,
+    template.description,
+    '',
+    '## EMPATHY型の構成',
+    '① フック（0〜3秒）: 失敗共感。ターゲットが経験しそうな失敗を自分事として語る。煽らない。',
+    '② 共感・課題提示（3〜10秒）: 「調べたけど正解がわからない」不安に寄り添う。上から教えない。',
+    '③ メイン情報（10〜40秒）: 具体的な攻略情報を出し惜しみせず提供。数字・具体例を含む。',
+    '④ 感情・ベネフィット（40〜50秒）: 発信者の回答を元に、情報の先にある家族の体験を語る。',
+    '⑤ CTA（50〜60秒）: フォロー促進。煽らず自然に。',
+    '',
+    buildTemplateStructure(template),
+    '',
+    buildVoiceRules(),
+    '',
+    buildPersonalityRules(),
+    '',
+    '## EMPATHY型の個性心理学ルール（追加）',
+    '- 各シーンのpersonalityはテーマに応じてAIが最適なタイプを1つ選んで割り当てる',
+    '- ただしMoon/Earth/Sunの全3タイプが最低1回は登場すること',
+    '- フックに固定タイプはない。テーマに最も合うタイプを選ぶ',
+    '',
+    buildOutputFormat('empathy'),
+    '',
+    '# ユーザーの音声メモ（テーマ・メイン情報）',
+    '```',
+    transcript,
+    '```',
+    '',
+    '# 感情引き出し質問への回答',
+    '以下の回答を④感情・ベネフィットパートに活かすこと:',
+    '```',
+    answersBlock,
+    '```',
+    '',
+    '上記の音声メモと質問回答を活かし、EMPATHY型テンプレートに沿った台本を生成してください。',
+    '情報は出し惜しみせず具体的に。煽りNG。友達に話す感じで。',
+    '必ず ```json ブロックでJSON形式のみ出力してください。説明文は不要です。'
+  ].join('\n');
+
+  return prompt;
 }
 
 /**

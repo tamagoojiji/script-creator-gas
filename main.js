@@ -16,6 +16,12 @@ function doPost(e) {
       case 'generate':
         result = handleGenerate(data);
         break;
+      case 'generate-questions':
+        result = handleGenerateQuestions(data);
+        break;
+      case 'generate-empathy':
+        result = handleGenerateEmpathy(data);
+        break;
       case 'test':
         result = { ok: true, message: '接続成功' };
         break;
@@ -73,6 +79,63 @@ function handleGenerate(data) {
   Logger.log('台本生成成功: ' + scriptData.scenes.length + 'シーン');
 
   // YAML変換
+  var yaml = toYaml(scriptData);
+
+  return {
+    ok: true,
+    script: scriptData,
+    yaml: yaml
+  };
+}
+
+/**
+ * EMPATHY型: 感情引き出し質問を生成
+ * @param {Object} data - { transcript, targets }
+ * @returns {Object} { ok, questions }
+ */
+function handleGenerateQuestions(data) {
+  var transcript = data.transcript;
+  var targets = data.targets || ['リール'];
+
+  if (!transcript || transcript.trim() === '') {
+    throw new Error('音声メモが空です');
+  }
+
+  Logger.log('質問生成開始');
+
+  var prompt = buildQuestionsPrompt(transcript, targets);
+  var result = callGemini(prompt);
+
+  Logger.log('質問生成成功: ' + result.questions.length + '個');
+
+  return {
+    ok: true,
+    questions: result.questions
+  };
+}
+
+/**
+ * EMPATHY型: 質問回答を含めた台本生成
+ * @param {Object} data - { transcript, targets, answers }
+ * @returns {Object} { ok, script, yaml }
+ */
+function handleGenerateEmpathy(data) {
+  var transcript = data.transcript;
+  var targets = data.targets || ['リール'];
+  var answers = data.answers || [];
+
+  if (!transcript || transcript.trim() === '') {
+    throw new Error('音声メモが空です');
+  }
+
+  Logger.log('EMPATHY台本生成開始: answers=' + answers.length + '個');
+
+  var prompt = buildEmpathyPrompt(transcript, targets, answers);
+  Logger.log('プロンプト文字数: ' + prompt.length);
+
+  var scriptData = callGemini(prompt);
+  Logger.log('台本生成成功: ' + scriptData.scenes.length + 'シーン');
+
   var yaml = toYaml(scriptData);
 
   return {

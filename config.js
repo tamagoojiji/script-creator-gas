@@ -47,6 +47,22 @@ var CONFIG = {
         { role: '結果・ゴール', personality: 'Sun', expression: 'normal' },
         { role: '補足・限定情報', personality: 'Sun/Earth', expression: 'surprised' }
       ]
+    },
+    empathy: {
+      name: 'EMPATHY型',
+      description: '失敗共感→情報提供→感情（50-60秒・攻略情報でフォロー獲得）',
+      sceneCount: '7-10シーン',
+      structure: [
+        { role: 'フック（失敗共感）', personality: 'AI判定', expression: 'frustrated' },
+        { role: '共感・課題提示', personality: 'AI判定', expression: 'tired' },
+        { role: 'メイン情報1', personality: 'AI判定', expression: 'idea' },
+        { role: 'メイン情報2', personality: 'AI判定', expression: 'normal' },
+        { role: 'メイン情報3', personality: 'AI判定', expression: 'surprised' },
+        { role: '感情・ベネフィット1', personality: 'AI判定', expression: 'normal' },
+        { role: '感情・ベネフィット2', personality: 'AI判定', expression: 'idea' },
+        { role: 'CTA（行動喚起）', personality: 'AI判定', expression: 'bow' }
+      ],
+      note: '各シーンのpersonalityはAIがテーマに応じて最適なタイプを選択。ただしMoon/Earth/Sun全3タイプが最低1回は登場すること。'
     }
   }
 };
