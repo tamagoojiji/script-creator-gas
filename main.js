@@ -31,6 +31,12 @@ function doPost(e) {
       case 'sync-delete':
         result = handleSyncDelete(data);
         break;
+      case 'sync-history-save':
+        result = handleSyncHistorySave(data);
+        break;
+      case 'sync-history-load':
+        result = handleSyncHistoryLoad();
+        break;
       case 'test':
         result = { ok: true, message: '接続成功' };
         break;
@@ -233,6 +239,68 @@ function handleSyncDelete(data) {
   Logger.log('sync-delete: id=' + id);
 
   return { ok: true };
+}
+
+/**
+ * クラウド同期: 生成履歴を保存
+ * @param {Object} data - { history: HistoryItem[] }
+ * @returns {Object} { ok, count }
+ */
+function handleSyncHistorySave(data) {
+  var history = data.history;
+  if (!history || !Array.isArray(history)) {
+    throw new Error('historyが指定されていません');
+  }
+
+  var props = PropertiesService.getScriptProperties();
+
+  // 既存のcreate-history_*キーを全削除
+  var allKeys = props.getKeys();
+  for (var i = 0; i < allKeys.length; i++) {
+    if (allKeys[i].indexOf('create-history_') === 0) {
+      props.deleteProperty(allKeys[i]);
+    }
+  }
+
+  // 新しい履歴を保存
+  for (var j = 0; j < history.length; j++) {
+    var h = history[j];
+    props.setProperty('create-history_' + h.id, JSON.stringify(h));
+  }
+
+  Logger.log('sync-history-save: ' + history.length + '件保存');
+
+  return {
+    ok: true,
+    count: history.length
+  };
+}
+
+/**
+ * クラウド同期: 生成履歴をロード
+ * @returns {Object} { ok, history }
+ */
+function handleSyncHistoryLoad() {
+  var props = PropertiesService.getScriptProperties();
+  var allKeys = props.getKeys();
+  var history = [];
+
+  for (var i = 0; i < allKeys.length; i++) {
+    if (allKeys[i].indexOf('create-history_') === 0) {
+      try {
+        history.push(JSON.parse(props.getProperty(allKeys[i])));
+      } catch (e) {
+        Logger.log('sync-history-load: パース失敗 key=' + allKeys[i]);
+      }
+    }
+  }
+
+  Logger.log('sync-history-load: ' + history.length + '件取得');
+
+  return {
+    ok: true,
+    history: history
+  };
 }
 
 /**
