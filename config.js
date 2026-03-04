@@ -63,6 +63,19 @@ var CONFIG = {
         { role: 'CTA（行動喚起）', personality: 'AI判定', expression: 'bow' }
       ],
       note: '各シーンのpersonalityはAIがテーマに応じて最適なタイプを選択。ただしMoon/Earth/Sun全3タイプが最低1回は登場すること。'
+    },
+    engagement: {
+      name: 'ENGAGEMENT型',
+      description: '否定・意外性→ツッコミ誘発→共感→商品登場（30秒・滞在時間重視）',
+      sceneCount: '5-6シーン',
+      structure: [
+        { role: 'オープニング（否定・意外性で手を止める。認知的不協和）', personality: 'Sun', expression: 'surprised' },
+        { role: '興味・欲求（商品を出さず課題や状況を見せる。擬音語OK）', personality: 'Earth', expression: 'frustrated' },
+        { role: 'ツッコミ誘発（論点ずらしで「え？」を作る。コメント誘発）', personality: 'Sun', expression: 'dizzy' },
+        { role: '共感ポイント（あるある・日常の困りごと）', personality: 'Moon', expression: 'tired' },
+        { role: '商品登場＆説明（ここで初めて商品を出す。メリット1-2個）', personality: 'Earth', expression: 'idea' }
+      ],
+      note: '最初の3秒で手を止め、ツッコミ・共感で滞在時間を稼ぐ構成。商品は後半まで出さない。1文=短め、改行多め、「…」で間を作る。'
     }
   }
 };
