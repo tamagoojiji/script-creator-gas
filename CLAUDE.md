@@ -17,7 +17,7 @@
 ## デプロイ
 - **Script ID**: `1OA2YWgYedA6nAWY5hByhOO9n6APZA0f5dH_nmnh9_yjSGsdAJayGCMiV`
 - **固定デプロイID**: `AKfycbw1VqskCKAhBHdl6DdDI3iJFVs42-H39oTp2wu5fJWQp6J_FTf-fN8d89ku7PVM7n0P`
-- コマンド: `clasp deploy -i AKfycbw1VqskCKAhBHdl6DdDI3iJFVs42-H39oTp2wu5fJWQp6J_FTf-fN8d89ku7PVM7n0P`
+- コマンド: `clasp redeploy AKfycbw1VqskCKAhBHdl6DdDI3iJFVs42-H39oTp2wu5fJWQp6J_FTf-fN8d89ku7PVM7n0P`
 
 ## API仕様
 ### POST（台本生成）
