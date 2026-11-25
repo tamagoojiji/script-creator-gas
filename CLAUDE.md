@@ -42,5 +42,5 @@
 gemini-2.5-flash → gemini-2.5-flash-lite → gemini-2.0-flash → gemini-2.0-flash-lite
 
 ## 注意事項
-- GEMINI_API_KEY はスクリプトプロパティに設定必須
+- Gemini は Vertex proxy 経由（vertexProxy.gs / ScriptApp.getOAuthToken 認証）。proxy用の手設定は不要
 - CORS対策: フロントからは Content-Type: text/plain でPOST

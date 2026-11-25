@@ -2,11 +2,7 @@
  * 台本作成GAS - 設定
  */
 var CONFIG = {
-  // Gemini API
-  GEMINI_API_KEY: PropertiesService.getScriptProperties().getProperty('GEMINI_API_KEY'),
-  GEMINI_API_URL: 'https://generativelanguage.googleapis.com/v1beta/models/',
-
-  // フォールバックモデルリスト（優先順）
+  // Gemini（Vertex proxy 経由・vertexProxy.gs）。フォールバックモデルリスト（優先順）
   GEMINI_MODELS: [
     'gemini-2.5-flash',
     'gemini-2.5-flash-lite',

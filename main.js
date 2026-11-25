@@ -304,17 +304,6 @@ function handleSyncHistoryLoad() {
 }
 
 /**
- * 初回セットアップ: GASエディタでこの関数を実行してAPIキーを設定
- * 実行前に下の YOUR_API_KEY_HERE を実際のキーに書き換えてから実行。
- * 実行後は必ず元に戻す（キーをコードに残さない）。
- */
-function setupApiKey() {
-  var key = 'YOUR_API_KEY_HERE';
-  PropertiesService.getScriptProperties().setProperty('GEMINI_API_KEY', key);
-  Logger.log('GEMINI_API_KEY を設定しました（文字数: ' + key.length + '）');
-}
-
-/**
  * テスト用関数（GASエディタから直接実行）
  */
 function testGenerate() {
